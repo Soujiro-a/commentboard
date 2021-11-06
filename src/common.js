@@ -1,6 +1,8 @@
-const HOST = 'b0eb064f57d5.ngrok.io'
+require('dotenv').config()
 
 /* eslint-disable prefer-destructuring */
+const HOST = process.env.HOST
+const PORT = process.env.PORT || 3000
 
 /** @type {string} */
 const FB_APP_ID = process.env.FB_APP_ID
@@ -35,6 +37,7 @@ const APP_CONFIG_JSON = JSON.stringify({
 
 module.exports = {
   HOST,
+  PORT,
   FB_APP_ID,
   FB_CLIENT_SECRET,
   NAVER_CLIENT_ID,

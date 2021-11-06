@@ -1,5 +1,7 @@
 // @ts-check
 
+const { v4: uuidv4 } = require('uuid')
+const bcrypt = require('bcrypt')
 const { signJWT } = require('./jwt')
 const { getUsersCollection } = require('../mongo')
 
@@ -42,6 +44,27 @@ async function createUserOrLogin({
   })
 
   // TODO
+  if (existingUser) {
+    return {
+      userId: existingUser.id,
+      accessToken: await signJWT(existingUser.id),
+    }
+  }
+
+  const userId = uuidv4()
+  await users.insertOne({
+    id: userId,
+    platformUserId, // 해당 플랫폼에서의 user ID
+    platform, // Kakao, Facebook, Naver
+    nickname,
+    profileImageURL,
+    verified: true,
+  })
+
+  return {
+    userId,
+    accessToken: await signJWT(userId),
+  }
 }
 
 /**
@@ -61,7 +84,13 @@ function setAccessTokenCookie(res, token) {
  */
 async function encryptPassword(password) {
   return new Promise((resolve, reject) => {
-    // TODO
+    bcrypt.hash(password, 10, (err, res) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(res)
+      }
+    })
   })
 }
 
@@ -72,7 +101,13 @@ async function encryptPassword(password) {
  */
 async function comparePassword(plainText, password) {
   return new Promise((resolve, reject) => {
-    // TODO
+    bcrypt.compare(plainText, password, (err, res) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(res)
+      }
+    })
   })
 }
 
